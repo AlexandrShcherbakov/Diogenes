@@ -5,4 +5,6 @@ Files:
 	2. mapper.py - used to build reverse index from lists of stemmed words
 		stdin - stemmed words
 		stdout - reverse index
-	
+	3. reducer.py - used to compress index by simple9
+		stdin - reverse index
+		stdout - compressed index
