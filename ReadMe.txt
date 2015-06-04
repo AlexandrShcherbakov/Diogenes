@@ -15,3 +15,8 @@ Files:
 		map.txt - writed hashtable with offsets and sizes of reverse indexes
 	5. index.html - frontend
 	6. styles.css - styles for index.html
+	7. piri_reis.py - create files with pages without html and map for structure of those files
+		stdout - progress information
+		argv1 - files with htmls named 'docs-***.txt'
+		argv2/%i% - files with pages
+		page_map.txt - map of structure
