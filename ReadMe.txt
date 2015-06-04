@@ -13,5 +13,8 @@ Files:
 		stdout - progress information
 		dict - writed binary reverse index
 		map.txt - writed hashtable with offsets and sizes of reverse indexes
+<<<<<<< HEAD
 	5. index.html - frontend
 	6. styles.css - styles for index.html
+=======
+>>>>>>> 06bad82e02b52c27fab54f55d9ffacfe3999646f
