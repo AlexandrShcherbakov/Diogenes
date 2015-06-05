@@ -20,3 +20,5 @@ Files:
 		argv1 - files with htmls named 'docs-***.txt'
 		argv2/%i% - files with pages
 		page_map.txt - map of structure
+	8. search.py - file with main logic of search
+	9. ranklib.py - file with rank logic

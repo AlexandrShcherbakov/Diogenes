@@ -38,17 +38,76 @@ def simple9decode1(num):
 
 def myhash(s, p=257, mod=2**64):
 	res = 0
-	for i in s:
+	for i in s.encode('utf8'):
 		res *= p
-		res += ord(i)
+		res += i
 		res %= mod
 	return res
 
+def get_links(ind):
+	return [links[i] for i in ind]
+	for i in ind:
+		print(links[i])
+	print(len(ind), "sites showed")
+
+
+stem = Stemmer.Stemmer('russian')
+pagemap = [i.split('\t') for i in open('/media/alex/Seagate Backup Plus Drive/IR/project/page_map.txt', 'r').readlines()]
+pagemap = [[i[0], int(i[1]), int(i[2])] for i in pagemap]
+hashtblfile = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step4/map.txt', 'r')
+hashtbl = []
+for i in hashtblfile.readlines():
+	i1 = i.split('\t')
+	if len(i1) > 1:
+		hashtbl.append([int(i1[0]), i1[1], int(i1[2]), int(i1[3])])
+	else:
+		hashtbl.append([0])
+hashtblfile.close()
+binfl = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step4/dict', 'rb')
+links = [0] + list(map(lambda x: x.split('\t')[1][:-1], open('/media/alex/Seagate Backup Plus Drive/IR/all/urls.txt').readlines()))
+	
+#get_query
+#query to list of words
+#stemming for list of words
+def queryToStemmedList(query):
+	words = query.rstrip('\n').split(' ')
+	words = list(set(map(lambda x: x.lower(), words)))
+	st_words = list(map(lambda x: stem.stemWord(x), filter(lambda x: len(x) > 2, words)))
+	return [words, st_words]
+#bool search for each word
+#join indexes
+def boolSearch(st_terms):
+	index = onlyANDquery(st_terms)
+	return index
+
+def onlyANDquery(query):
+	print(query)
+	lenindex = []
+	ind = get_index(query[0])
+	lenindex.append(len(ind))
+	for i in range(1, len(query)):
+		ind2 = get_index(query[i])
+		lenindex.append(len(ind2))
+		ind = index_AND(ind, ind2)
+	return ind, lenindex
+
+def index_AND(ind1, ind2):
+	i = 0
+	j = 0
+	res = []
+	while j < len(ind2):
+		while i < len(ind1) and ind1[i] < ind2[j]:
+			i += 1
+		if i == len(ind1):
+			break
+		if ind1[i] == ind2[j]:
+			res.append(ind1[i])
+		j += 1
+	return res
+
 def get_index(word):
-	if word.startswith('NOT'):
-		word = word[3:]
-	word = word.decode('utf-8').lower().encode('utf-8')
 	hs = myhash(word)
+	print(hs)
 	l = len(hashtbl)
 	pos = hs % l
 	stpos = pos
@@ -60,12 +119,9 @@ def get_index(word):
 	nums = []
 	for i in range(0, int(hashtbl[pos][3]), 4):
 		num = binfl.read(4)
-		num = ord(num[0]) * 256 ** 3 + ord(num[1]) * 256 ** 2 + ord(num[2]) * 256 + ord(num[3])
+		num = num[0] * 256 ** 3 + num[1] * 256 ** 2 + num[2] * 256 + num[3]
 		nums += [num]
-	if len(sys.argv) > 1 and sys.argv[1] == 'fib':
-		res = fib_decode(nums, fb)
-	else:
-		res = simple9decode(nums)
+	res = simple9decode(nums)
 	zer = len(res) - 1
 	while zer != 0 and res[zer] == 0:
 		zer -= 1
@@ -74,175 +130,55 @@ def get_index(word):
 		res[i] += res[i - 1]
 	return res
 
-def index_AND(ind1, ind2):
-	if len(ind1) == 0 or len(ind2) == 0:
-		return []
-	res = []
-	i = 0
-	j = 0
-	while True:
-		while i < len(ind1) and j < len(ind2) and ind1[i] < ind2[j]:
-			i += 1
-		while i < len(ind1) and j < len(ind2) and ind1[i] > ind2[j]:
-			j += 1
-		if i >= len(ind1) or j >= len(ind2):
-			break
-		res.append(ind1[i])
-		i += 1
-		j += 1
-	return res
-
-def index_ANDNOT(ind1, ind2):
-	if not len(ind2):
-		return ind1
-	res = []
-	i = 0
-	j = 0
-	while True:
-		while i < len(ind1) and j < len(ind2) and ind1[i] < ind2[j]:
-			res.append(ind1[i])
-			i += 1
-		while i < len(ind1) and j < len(ind2) and ind1[i] > ind2[j]:
-			j += 1
-		if i >= len(ind1) or j >= len(ind2):
-			if i < len(ind1):
-				res += ind1[i:]
-			break
-		i += 1
-		j += 1
-	return res
-
-def index_NOTAND(ind1, ind2):
-	return index_ANDNOT(ind2, ind1)
-
-def index_OR(ind1, ind2):
-	return list(set(ind1 + ind2))
-
-def get_links(ind):
-	for i in ind:
-		print(links[i])
-	print(len(ind), "sites showed")
-
-def onlyORquery(query, q1):
-	ind = q1[0]
-	for i in range(1, len(query)):
-		ind2 = q1[i]
-		ind = index_OR(ind, ind2)
-	return ind
-
-def onlyANDquery(query):
-	indexes = []
-	if query[0].startswith('NOT'):
-		sgn1 = -1
-	else:
-		sgn1 = 1
-	ind = get_index(query[0])
-	indexes.append(ind)
-	for i in range(1, len(query)):
-		if query[i].startswith('NOT'):
-			sgn2 = -1
-		else:
-			sgn2 = 1
-		ind2 = get_index(query[i])
-		indexes.append(ind2)
-		if sgn1 < 0:
-			ind = index_NOTAND(ind, ind2)
-			sgn1 = 1
-		else:
-			if sgn2 < 0:
-				ind = index_ANDNOT(ind, ind2)
-			else:
-				ind = index_AND(ind, ind2)
-	return ind, indexes
-
-def calculate_query():
-	query = sys.stdin.readline()[:-1]
-	terms = query.split(' ')
-	q, indexes = onlyANDquery(terms)
-	if len(q) != 0:
-		res = range_result(terms, q, indexes)
-	else:
-		print("0 pages was found.")
-	#qusplOR = query.split(' OR ')
-	#qusplAND = [list(map(lambda x: x.replace(' ', ''), i.split(' AND '))) for i in qusplOR]
-	#q1 = [onlyANDquery(x) for x in qusplAND]
-	#get_links(onlyORquery(qusplAND, q1), links)
-
-def loaddoc(num):
-	for i in range(len(pagemap)):
-		if num >= pagemap[i][0]:
-			break
-	f = open(pagemap[i][1], 'r')
-	for j in range(num - pagemap[i][0]):
-		f.readline()
-	doc = re.findall(re.compile("\w+", re.U), zlib.decompress(base64.b64decode(f.readline().split('\t')[1])).decode('utf-8').lower())
-	doc = list(map(lambda x: x.encode('utf-8'), doc))
-	alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
-	doc = list(filter(lambda x: x[0] in alphabet, doc))
-	return doc
-
-def range_result(terms, alldocs, indexes):
-	print(len(alldocs), 'pages was found')
+#compute bm25 for index
+#take top 100
+def compute_BM25(st_terms, index, lenindex):
 	#compute idfs
-	max_urls = 570000
-	idfs = [log(max_urls / len(indexes[i])) for i in range(len(terms))]
+	max_urls = len(links)
+	idfs = [log(max_urls / lenindex[i]) for i in range(len(st_terms))]
 	#compute BM25
 	resdocs = PriorityQueue(101)
-	for i in range(len(alldocs)):
-		doc = loaddoc(alldocs[i])
-		bmparams = [float(sys.argv[7]), float(sys.argv[8])]
-		bm = sum([BM25(terms[j], doc, idfs[j]) for j in range(len(terms))])
+	for i in range(len(index)):
+		doc = list(map(lambda x: stem.stemWord(x.lower()), loaddoc(index[i])))
+		bm = -sum([BM25(st_terms[j], doc, idfs[j]) for j in range(len(st_terms))])
 		if resdocs.full():
 			resdocs.get()
-		resdocs.put((bm, [alldocs[i], doc]))
+		resdocs.put((bm, [index[i], doc]))
 	res = []
 	while not resdocs.empty():
 		res.append(list(resdocs.get()))
-	pas = []
-	parameters = [float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6])]
-	for i in res:
-		pas.append(passage_algorithm(i[1][1], terms, idfs, parameters))
-	for i in range(len(res)):
-		res[i][0] *= params[1]
-		res[i][0] += pas[i] * params[0]
-	res = sorted(res)[:10]
-	inds = [i[1][0] for i in res]
-	get_links(inds)
+	result = [[-i[0], i[1][0], i[1][1]] for i in res[:101]]
+	return result, idfs
 
+def loaddoc(num):
+	num -= 1
+	fl, offset, size = pagemap[num]
+	fl = open('/media/alex/Seagate Backup Plus Drive/IR/project/' + fl, 'rb')
+	fl.seek(offset)
+	return fl.read(size).decode('utf-8').split(' ')
 
-def main():
-	params = [float(sys.argv[1]), float(sys.argv[2])]
-	pagemap = [i.split('\t')[::-1] for i in open('page_map.txt', 'r').readline().split('\n')[:-1]]
-	pagemap = [[int(i[0]), i[1]] for i in pagemap][::-1]
-	fb = calculate_fib()
-	hashtblfile = open('map.txt', 'r')
-	hashtbl = []
-	for i in hashtblfile.readlines():
-		i1 = i.split('\t')
-		if len(i1) > 1:
-			hashtbl.append([int(i1[0]), i1[1], int(i1[2]), int(i1[3])])
-		else:
-			hashtbl.append([0])
-	hashtblfile.close()
-	binfl = open('dict', 'rb')
-	links = [0] + list(map(lambda x: x.split('\t')[1][:-1], open('1_1000/urls.txt').readlines()))
-	while True:
-		print('Enter your query, please:')
-		calculate_query()
-
-stem = Stemmer.Stemmer('russian')
-#get_query
-#query to list of words
-#stemming for list of words
-def queryToStemmedList(query):
-	words = query.rstrip('\n').split(' ')
-	words = list(set(map(lambda x: x.lower(), words)))
-	st_words = list(set(map(lambda x: stem.stemWord(x), filter(lambda x: len(x) > 2, words))))
-	return [words, st_words]
-#bool search for each word
-
-#join indexes
-#compute bm25 for index
-#take top 100
 #compute passages
 #take top 6
+def compute_passages(top100, st_terms, idfs):
+	pas = []
+	parameters = [0.25, 0.25, 0.25, 0.25]
+	for i in top100:
+		pas.append(passage_algorithm(i[2], st_terms, idfs, parameters))
+	comose_parameters = [0.5, 0.5]
+	for i in range(len(top100)):
+		top100[i][0] *= comose_parameters[1]
+		top100[i][0] += pas[i][0] * comose_parameters[0]
+		top100[i].append(pas[i][1])
+	top6 = sorted(top100, reverse=True)[:6]
+	inds = [i[1] for i in top6]
+	passages = [i[-1] for i in top6]
+	return inds, passages
+
+
+def holy_shit(q):
+	a = queryToStemmedList(q)
+	b = boolSearch(a[1])
+	c = compute_BM25(a[1], b[0], b[1])
+	d = compute_passages(c[0], a[1], c[1])
+	print(d[1])
+	return get_links(d[0])
