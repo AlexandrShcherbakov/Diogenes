@@ -33,27 +33,24 @@ def passage_tfidf(passage, doc, idfs):
 def passage_algorithm(doc, terms, idfs, parameters):
 	#Extract passages
 	passages = []
-	passage = []
+	passage = {}
 	for inddocterm in range(len(doc)):
 		if doc[inddocterm] in terms:
-			for t in passage:
-				if t[0] == doc[inddocterm]:
-					passage.remove(t)
-					break
-			passage.append([doc[inddocterm], inddocterm])
-			passages.append(passage)
+			passage[doc[inddocterm]] = inddocterm
+			passages.append([[i, passage[i]] for i in passage.keys()])
 	#Compute metrics
 	L = float(doc_len(doc))
 	m_value = 0
+	if len(passages) == 0:
+		return [0, []]
 	best_pas = passages[0]
 	for passage in passages:
 		metric = []
-		metric.append(passage_tfidf(passage, doc, idfs))
+		#metric.append(passage_tfidf(passage, doc, idfs))
 		metric.append(len(passage) / len(terms))
-		metric.append(count_inverse(terms, passage))
-		metric.append(1 - passage[0][1] / L)
+		metric.append(1 -min(passage, key=lambda x: x[1])[1] / L)
+		metric.append(1 -(max(passage, key=lambda x: x[1])[1] - min(passage, key=lambda x: x[1])[1]) / L)
 		val = sum([metric[i] * parameters[i] for i in range(len(metric))])
-		#val = reduce(lambda res, i: res + metric[i] * parameters[i], range(len(metric)))
 		if m_value < val:
 			m_value = val
 			best_pas = passage
