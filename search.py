@@ -161,7 +161,7 @@ def loaddoc(num):
 #take top 6
 def compute_passages(top100, st_terms, idfs):
 	pas = []
-	parameters = [0.25, 0.25, 0.25, 0.25]
+	parameters = [2, 0.25, 0.75]
 	for i in top100:
 		pas.append(passage_algorithm(i[2], st_terms, idfs, parameters))
 	comose_parameters = [0.5, 0.5]
@@ -178,6 +178,8 @@ def compute_passages(top100, st_terms, idfs):
 def holy_shit(q):
 	a = queryToStemmedList(q)
 	b = boolSearch(a[1])
+	if len(b[0]) == 0:
+		return []
 	c = compute_BM25(a[1], b[0], b[1])
 	d = compute_passages(c[0], a[1], c[1])
 	print(d[1])
