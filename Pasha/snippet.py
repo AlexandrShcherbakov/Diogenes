@@ -15,24 +15,28 @@ def ends(s):
 				res[i] = 1
 	return res
 
+shifts = {}
+sfiles = {}
+#path = './1_1000/'
+path = '/media/pavel/Seagate Backup Plus Drive/IR/all/'
 
-def get(req, title, url):
-	#path = './1_1000/'
-	path = '/media/pavel/Seagate Backup Plus Drive/IR/all/'
+def precount_sh():
 	f = open(path + 'shift.txt', 'r')
-	fl = {}
-	sh = {}
+	global sfiles
+	global shifts
 	for i in f.readlines():
 		t = i.split()
 		x = int(t[0])
-		if x in req:
-			#print(i)
-			fl[x] = t[1]
-			sh[x] = int(t[2])
-	f.close()
+		sfiles[x] = t[1]
+		shifts[x] = int(t[2])
+	f.close()	
+
+precount_sh()
+
+def get(req, title, url):
 	for i in req.keys():
-		f = open(path + fl[i], 'r')
-		f.seek(sh[i])
+		f = open(path + sfiles[i], 'r')
+		f.seek(shifts[i])
 		number, data = f.readline().split('\t')
 		f.close()
 		html_text = zlib.decompress(base64.b64decode(data)).decode('utf-8')
@@ -80,7 +84,7 @@ def get(req, title, url):
 		req[i] = text
 		#print(text)
 
-def snip(lst, length=150):
+def snip(lst, length=180):
 	req = {}
 	title = {}
 	url = {}
@@ -113,7 +117,7 @@ def snip(lst, length=150):
 			while text[p - 1] != ' ':
 				p -= 1
 		pos = p
-		for i in range(pos + length, pos + length + 50):
+		for i in range(pos + length, pos + length + 70):
 			if dots[i]:
 				r = text[pos : i]
 				break
