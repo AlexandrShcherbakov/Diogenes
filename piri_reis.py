@@ -7,12 +7,15 @@ from os.path import isfile, join
 import base64
 import zlib
 import re
+import Stemmer
 
 buf = []
 
 mp = open('page_map.txt', 'w')
 it = 0
 num = 1
+
+stem = Stemmer.Stemmer('russian')
 
 for fl in listdir(sys.argv[1]):
 	if fl.startswith("docs"):
@@ -29,7 +32,7 @@ for fl in listdir(sys.argv[1]):
 				html_text = html_text[:ind] + html_text[rind + 9:]
 				ind = html_text.find('<script')
 			text = re.sub('<[^>]*>', ' ', html_text).replace('&nbsp;', ' ')
-			text = ' '.join(re.findall(r'\w+', re.sub(r'&[^;]{2,6};', ' ', text)))
+			text = ' '.join(stem.stemWords(re.findall(r'\w+', re.sub(r'&[^;]{2,6};', ' ', text))))
 			offset = out.tell()
 			out.write(text.encode('utf8'))
 			mp.write(sys.argv[2] + '/' + str(it) + '\t' + str(offset) + '\t' + str(out.tell() - offset) + '\n')
@@ -48,7 +51,7 @@ for i in range(len(buf)):
 		html_text = html_text[:ind] + html_text[rind + 9:]
 		ind = html_text.find('<script')
 	text = re.sub('<[^>]*>', ' ', html_text).replace('&nbsp;', ' ')
-	text = ' '.join(re.findall(r'\w+', re.sub(r'&[^;]{2,6};', ' ', text))) + '\n'
+	text = ' '.join(stem.stemWords(re.findall(r'\w+', re.sub(r'&[^;]{2,6};', ' ', text))))
 	offset = out.tell()
 	out.write(text.encode('utf8'))
 	mp.write(sys.argv[2] + '/' + str(it) + '\t' + str(offset) + '\t' + str(out.tell() - offset) + '\n')

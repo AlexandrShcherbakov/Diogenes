@@ -139,7 +139,7 @@ def compute_BM25(st_terms, index, lenindex):
 	#compute BM25
 	resdocs = PriorityQueue(101)
 	for i in range(len(index)):
-		doc = list(map(lambda x: stem.stemWord(x.lower()), loaddoc(index[i])))
+		doc = loaddoc(index[i])
 		bm = -sum([BM25(st_terms[j], doc, idfs[j]) for j in range(len(st_terms))])
 		if resdocs.full():
 			resdocs.get()
@@ -155,7 +155,7 @@ def loaddoc(num):
 	fl, offset, size = pagemap[num]
 	fl = open('/media/alex/Seagate Backup Plus Drive/IR/project/' + fl, 'rb')
 	fl.seek(offset)
-	return fl.read(size).decode('utf-8').split(' ')
+	return fl.read(size).decode('utf-8').lower().split(' ')
 
 #compute passages
 #take top 6

@@ -54,7 +54,7 @@ def passage_algorithm(doc, terms, idfs, parameters):
 		if m_value < val:
 			m_value = val
 			best_pas = passage
-	lit = max(0, min(best_pas, key=lambda x: x[1])[1] - 5)
-	rit = min(len(doc), max(best_pas, key=lambda x : x[1])[1] + 6)
+	lit = min(best_pas, key=lambda x: x[1])[1]
+	rit = max(best_pas, key=lambda x : x[1])[1] + 1
 	return m_value, doc[lit:rit]
 

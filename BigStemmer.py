@@ -10,10 +10,6 @@ import Stemmer
 for line in sys.stdin:
 	number, data = line.split('\t')
 	html_text = zlib.decompress(base64.b64decode(data)).decode('utf-8')
-	#soup = bs4.BeautifulSoup(html_text)
-	#for i in range(len(soup.findAll('script'))):
-	#	soup.script.decompose()
-	#text = soup.get_text()
 	ind = html_text.find('<script')
 	while ind != -1:
 		rind = html_text.find('</script>')

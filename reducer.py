@@ -30,7 +30,7 @@ doc_nums = []
 it = 0
 for line in sys.stdin:
 	word, nums = line.split('\t')
-	doc_nums = sorted([int(i) for i in nums.split(' ')])
+	doc_nums = sorted([max(int(i[:4]) - 8800, 0) * 1000000 + int(i[4:]) for i in nums.split(' ')])
 	for i in range(len(doc_nums) - 1, 0, -1):
 		doc_nums[i] -= doc_nums[i - 1]
 	result = simple9encode(doc_nums)
