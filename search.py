@@ -81,7 +81,23 @@ def boolSearch(st_terms):
 	return index
 
 def onlyANDquery(query):
-	print(query)
+	indexes = [get_index(i) for i in query]
+	indexes = sorted(indexes, key=lambda x: len(x))
+	i = 0
+	while i < len(indexes) and len(indexes[i]) < 5:
+		i += 1
+	if i == len(indexes):
+		i = 0
+	indexes = indexes[i:]
+	res_ind = indexes[0]
+	for i in indexes[1:]:
+		preres = index_AND(res_ind, i)
+		if len(preres) < 6:
+			continue
+		res_ind = preres
+	return res_ind
+
+	"""print(query)
 	lenindex = []
 	ind = get_index(query[0])
 	lenindex.append(len(ind))
@@ -89,10 +105,15 @@ def onlyANDquery(query):
 		ind2 = get_index(query[i])
 		lenindex.append(len(ind2))
 		ind = index_AND(ind, ind2)
-	return ind, lenindex
+	return ind, lenindex"""
 
 def index_AND(ind1, ind2):
-	i = 0
+	res = {}
+	for i in ind1.keys():
+		if i in ind2:
+			res = ind1[i] + ind2[i]
+	return res
+	"""i = 0
 	j = 0
 	res = []
 	while j < len(ind2):
@@ -103,7 +124,7 @@ def index_AND(ind1, ind2):
 		if ind1[i] == ind2[j]:
 			res.append(ind1[i])
 		j += 1
-	return res
+	return res"""
 
 def get_index(word):
 	hs = myhash(word)
@@ -128,10 +149,17 @@ def get_index(word):
 	res = res[:zer + 1]
 	for i in range(1, len(res)):
 		res[i] += res[i - 1]
-	return res
+	dic = {}
+	for i in res:
+		dic[i % 10**6] = i // 10**6
+	return dic
 
 #compute bm25 for index
 #take top 100
+def taketop100(index):
+	ls = sorted([[index[i], i] for i in index.keys()], reverse=True)
+	return ls[:100]
+
 def compute_BM25(st_terms, index, lenindex):
 	#compute idfs
 	max_urls = len(links)
@@ -163,6 +191,19 @@ def compute_passages(top100, st_terms, idfs):
 	pas = []
 	parameters = [2, 0.25, 0.75]
 	for i in top100:
+		pas.append(passage_algorithm(loaddoc(i[1]), st_terms, idfs, parameters))
+	comose_parameters = [0.5, 0.5]
+	for i in range(len(top100)):
+		top100[i][0] *= comose_parameters[1]
+		top100[i][0] += pas[i][0] * comose_parameters[0] / 250
+		top100[i].append(pas[i][1])
+	top6 = sorted(top100, reverse=True)[:6]
+	inds = [i[1] for i in top6]
+	passages = [i[-1] for i in top6]
+	return inds, passages
+	"""pas = []
+	parameters = [2, 0.25, 0.75]
+	for i in top100:
 		pas.append(passage_algorithm(i[2], st_terms, idfs, parameters))
 	comose_parameters = [0.5, 0.5]
 	for i in range(len(top100)):
@@ -172,7 +213,7 @@ def compute_passages(top100, st_terms, idfs):
 	top6 = sorted(top100, reverse=True)[:6]
 	inds = [i[1] for i in top6]
 	passages = [i[-1] for i in top6]
-	return inds, passages
+	return inds, passages"""
 
 
 def holy_shit(q):
@@ -180,7 +221,8 @@ def holy_shit(q):
 	b = boolSearch(a[1])
 	if len(b[0]) == 0:
 		return []
-	c = compute_BM25(a[1], b[0], b[1])
+	#c = compute_BM25(a[1], b[0], b[1])
+	c = taketop100(b)
 	d = compute_passages(c[0], a[1], c[1])
 	print(d[1])
 	return get_links(d[0])

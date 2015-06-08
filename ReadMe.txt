@@ -22,3 +22,7 @@ Files:
 		page_map.txt - map of structure
 	8. search.py - file with main logic of search
 	9. ranklib.py - file with rank logic
+	10. empedocles.py - merge files from output of mapper.py
+		argv1 - output file with index
+		argv2 - directory with mapper`s output
+		stdout - progress information

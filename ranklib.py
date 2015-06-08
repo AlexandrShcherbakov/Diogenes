@@ -1,7 +1,7 @@
 from math import log
 
 def term_frequency(term, doc):
-	res = doc.count(term)
+	res = doc.count(term) / len(doc)
 	if not res :
 		return 0
 	return 1 + log(res)
@@ -12,7 +12,7 @@ def tf_idf(term, doc, idf):
 def doc_len(doc):
 	return len(list(filter(lambda x: x != ' ', doc)))
 
-def BM25(term, doc, idf, params=[0.5, 0.5], L=0):
+def BM25(term, doc, idf, params=[2, 0.75], L=0):
 	tf = term_frequency(term, doc)
 	if L == 0:
 		L = doc_len(doc)
