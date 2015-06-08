@@ -62,7 +62,7 @@ def get(req, title, url):
 			pass
 
 		if i not in url:
-			url[i] = 'http://img0.ask.fm/assets2/073/450/118/400/normal/stLfazm.jpg'
+			url[i] = '/static/notfound.jpg'
 
 		html_text = re.sub('</?h[^>]*>', '. ', html_text)
 		ind = html_text.find('<script')
@@ -80,7 +80,7 @@ def get(req, title, url):
 		req[i] = text
 		#print(text)
 
-def snip(lst, length=100):
+def snip(lst, length=150):
 	req = {}
 	title = {}
 	url = {}
@@ -113,7 +113,7 @@ def snip(lst, length=100):
 			while text[p - 1] != ' ':
 				p -= 1
 		pos = p
-		for i in range(pos + length, pos + length + 100):
+		for i in range(pos + length, pos + length + 50):
 			if dots[i]:
 				r = text[pos : i]
 				break
