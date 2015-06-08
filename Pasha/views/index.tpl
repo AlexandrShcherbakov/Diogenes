@@ -15,6 +15,11 @@
         <button>Search</button>
       </form>
     </div>
+% if modif:
+    <div class="info">
+    Ваш запрос "{{modif}}" был заменен на "{{query}}"
+    </div>
+% end
     <div id="snippets">
       <ul>
 % for i in range(len(snippets)):

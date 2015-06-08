@@ -5,6 +5,7 @@ import base64
 import zlib
 import sys
 import re
+#from Stemmer import Stemmer as stemmer
 
 def ends(s):
 	res = [0] * len(s)
@@ -32,6 +33,27 @@ def precount_sh():
 	f.close()	
 
 precount_sh()
+#st = stemmer('russian')
+
+def bold(s, q):
+	return s
+	p = 0
+	q = 1
+	prev = 0
+	t = ''
+	l = len(s)
+	while True:
+		while q < l and s[q].isalpha():
+			q += 1
+		if st(s[p:q]) in q:
+			t += s[prev:p] + '<b>' + s[p:q] + '</b>'
+		else:
+			t += s[prev:q]
+		p = q
+		while q < l and not s[q].isalpha():
+			q += 1
+		t += s[p:q]
+	return t
 
 def get(req, title, url):
 	for i in req.keys():
@@ -84,10 +106,13 @@ def get(req, title, url):
 		req[i] = text
 		#print(text)
 
-def snip(lst, length=180):
+def snip(lst, query, length=150):
 	req = {}
 	title = {}
 	url = {}
+	q = set()
+	#for i in query:
+	#	q.add(st.stemWord(i))
 	for i in lst:
 		req[i[1]] = ''
 	get(req, title, url)
@@ -126,7 +151,7 @@ def snip(lst, length=180):
 			i += 1
 			if text[i] == ' ':
 				r = text[pos : i]
-		r = r.strip()
+		r = bold(r.strip(), q)
 		res.append((r, title[t[1]], url[t[1]]))
 		#print(r)
 		#print(title[t[1]])
