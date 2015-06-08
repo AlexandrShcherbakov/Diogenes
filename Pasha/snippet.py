@@ -40,7 +40,12 @@ def get(req, title, url):
 		x = re.search('<title>.*</title>', html_text).span()
 		t = html_text[x[0] + 7: x[1] - 8]
 		while t.find(':') > 0:
-			t = t[t.find(':') + 1:]
+			t = t[t.find(': ') + 1:]
+		if len(t) > 60:
+			k = 60
+			while t[k] != ' ':
+				k -= 1
+			t = t[:k] + '...'
 		title[i] = t
 
 		try:
@@ -102,7 +107,7 @@ def snip(lst, length=100):
 		dots = ends(text)
 		r = ''
 		p = pos
-		while (not dots[p - 1]) and (pos - p < 100) and (p > 10):
+		while (not dots[p - 1]) and (pos - p < 150) and (p > 10):
 			p -= 1
 		if not dots[p - 1]:
 			while text[p - 1] != ' ':
