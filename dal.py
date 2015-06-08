@@ -11,7 +11,7 @@ def myhash(s, p=257, mod=2**64):
 		res %= mod
 	return res
 
-print 'Dal started'
+print('Dal started')
 it = 0
 hashs = []
 offset = 0
@@ -44,7 +44,7 @@ for i in hashs:
 	hashtbl[pos] = i
 	if maxq < q:
 		maxq = q
-		print maxq
+		print(maxq)
 hstblfile = open('map.txt', 'w')
 for h in hashtbl:
 	if h == 0:
@@ -52,5 +52,5 @@ for h in hashtbl:
 	else:
 		hstblfile.write('\t'.join(map(str, h)) + '\n')
 hstblfile.close()
-print 'Dal finished'
-print maxq
+print('Dal finished')
+print(maxq)

@@ -25,13 +25,17 @@ def simple9encode(nums):
 		i += variants[var][1]
 	return res
 
+
 last_word = ''
 doc_nums = []
 it = 0
 for line in sys.stdin:
 	word, nums = line.split('\t')
-	doc_nums = sorted([max(int(i[:4]) - 8800, 0) * 1000000 + int(i[4:]) for i in nums.split(' ')])
+	doc_nums = sorted([int(i) for i in nums.split(' ')])
 	for i in range(len(doc_nums) - 1, 0, -1):
 		doc_nums[i] -= doc_nums[i - 1]
 	result = simple9encode(doc_nums)
 	print(word + '\t' + ' '.join(map(str, result)))
+	it += 1
+	if it % 1000 == 0:
+		sys.stderr.write(str(it) + '\n')

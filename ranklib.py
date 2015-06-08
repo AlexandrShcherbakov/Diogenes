@@ -30,7 +30,7 @@ def count_inverse(query, passage):
 def passage_tfidf(passage, doc, idfs):
 	return sum(list(map(lambda x: tf_idf(passage[x][0], doc, idfs[x]), range(len(passage)))))
 
-def passage_algorithm(doc, terms, idfs, parameters):
+def passage_algorithm(doc, terms, parameters):
 	#Extract passages
 	passages = []
 	passage = {}

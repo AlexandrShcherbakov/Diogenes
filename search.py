@@ -54,7 +54,7 @@ def get_links(ind):
 stem = Stemmer.Stemmer('russian')
 pagemap = [i.split('\t') for i in open('/media/alex/Seagate Backup Plus Drive/IR/project/page_map.txt', 'r').readlines()]
 pagemap = [[i[0], int(i[1]), int(i[2])] for i in pagemap]
-hashtblfile = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step4/map.txt', 'r')
+hashtblfile = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step52/map.txt', 'r')
 hashtbl = []
 for i in hashtblfile.readlines():
 	i1 = i.split('\t')
@@ -63,7 +63,7 @@ for i in hashtblfile.readlines():
 	else:
 		hashtbl.append([0])
 hashtblfile.close()
-binfl = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step4/dict', 'rb')
+binfl = open('/media/alex/Seagate Backup Plus Drive/IR/project/Step52/dict', 'rb')
 links = [0] + list(map(lambda x: x.split('\t')[1][:-1], open('/media/alex/Seagate Backup Plus Drive/IR/all/urls.txt').readlines()))
 	
 #get_query
@@ -111,7 +111,7 @@ def index_AND(ind1, ind2):
 	res = {}
 	for i in ind1.keys():
 		if i in ind2:
-			res = ind1[i] + ind2[i]
+			res[i] = ind1[i] + ind2[i]
 	return res
 	"""i = 0
 	j = 0
@@ -128,7 +128,6 @@ def index_AND(ind1, ind2):
 
 def get_index(word):
 	hs = myhash(word)
-	print(hs)
 	l = len(hashtbl)
 	pos = hs % l
 	stpos = pos
@@ -157,8 +156,8 @@ def get_index(word):
 #compute bm25 for index
 #take top 100
 def taketop100(index):
-	ls = sorted([[index[i], i] for i in index.keys()], reverse=True)
-	return ls[:100]
+	ls = sorted([[index[i], i] for i in index.keys()])
+	return [i[1] for i in ls[:100]], [i[0] for i in ls[:100]]
 
 def compute_BM25(st_terms, index, lenindex):
 	#compute idfs
@@ -187,16 +186,16 @@ def loaddoc(num):
 
 #compute passages
 #take top 6
-def compute_passages(top100, st_terms, idfs):
+def compute_passages(top100, st_terms, bm25):
 	pas = []
-	parameters = [2, 0.25, 0.75]
+	parameters = [1, 0.15, 3]
 	for i in top100:
-		pas.append(passage_algorithm(loaddoc(i[1]), st_terms, idfs, parameters))
-	comose_parameters = [0.5, 0.5]
+		pas.append(passage_algorithm(loaddoc(i), st_terms, parameters))
+	comose_parameters = [0.5, 2]
 	for i in range(len(top100)):
-		top100[i][0] *= comose_parameters[1]
-		top100[i][0] += pas[i][0] * comose_parameters[0] / 250
-		top100[i].append(pas[i][1])
+		bm25[i] = 1 - bm25[i] * comose_parameters[1] / 250
+		bm25[i] += pas[i][0] * comose_parameters[0]
+		top100[i] = [bm25[i], top100[i], pas[i][1]]
 	top6 = sorted(top100, reverse=True)[:6]
 	inds = [i[1] for i in top6]
 	passages = [i[-1] for i in top6]
@@ -219,7 +218,7 @@ def compute_passages(top100, st_terms, idfs):
 def holy_shit(q):
 	a = queryToStemmedList(q)
 	b = boolSearch(a[1])
-	if len(b[0]) == 0:
+	if len(b) == 0:
 		return []
 	#c = compute_BM25(a[1], b[0], b[1])
 	c = taketop100(b)
