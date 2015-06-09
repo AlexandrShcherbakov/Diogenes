@@ -15,9 +15,14 @@
         <button>Search</button>
       </form>
     </div>
-% if modif:
+% if modif and not redir:
     <div class="info">
     Ваш запрос "{{modif}}" был заменен на "{{query}}"
+    </div>
+% end
+% if redir:
+    <div class="info">
+    По запросу "{{modif}}" ничего не нашлось. Лучше почитайте про Александра Македонского
     </div>
 % end
     <div id="snippets">
@@ -26,7 +31,7 @@
 % s = snippets[i]
         <li>
           <div class="snippet" style="background-color:{{scolors[i % 6]}};" onmouseover="getElementById('prev{{i}}').style.visibility='visible';" onmouseout="getElementById('prev{{i}}').style.visibility='hidden';">
-            <a class="title" href="{{s['url']}}">{{!s['title']}}</a>
+            <a class="title" href="{{s['url']}}" alt="{{s['tfull']}}">{{!s['title']}}</a>
             <p>...&nbsp;{{!s['text']}}&nbsp;...</p>
             <a class="address" href="{{s['url']}}">{{s['url']}}</a>
           </div>

@@ -20,7 +20,7 @@ shifts = {}
 sfiles = {}
 #path = './1_1000/'
 #path = '/media/pavel/Seagate Backup Plus Drive/IR/all/'
-path = argv[1] + 'all/'
+path = sys.argv[1] + '/all/'
 
 def precount_sh():
 	f = open(path + 'shift.txt', 'r')
@@ -45,7 +45,7 @@ def bold(s, qq):
 	while True:
 		while q < l and s[q].isalpha():
 			q += 1
-		if st(s[p:q]) in qq:
+		if st.stemWord(s[p:q]) in qq:
 			t += s[prev:p] + '<b>' + s[p:q] + '</b>'
 		else:
 			t += s[prev:q]
@@ -58,7 +58,7 @@ def bold(s, qq):
 			break
 	return t
 
-def get(req, title, url):
+def get(req, title, url, tfull):
 	for i in req.keys():
 		f = open(path + sfiles[i], 'r')
 		f.seek(shifts[i])
@@ -70,6 +70,7 @@ def get(req, title, url):
 		t = html_text[x[0] + 7: x[1] - 8]
 		while t.find(':') > 0:
 			t = t[t.find(': ') + 1:]
+		tfull[i] = t
 		if len(t) > 60:
 			k = 60
 			while t[k] != ' ':
@@ -113,12 +114,13 @@ def snip(lst, query, length=150):
 	req = {}
 	title = {}
 	url = {}
+	tfull = {}
 	q = set()
 	for i in query:
 		q.add(st.stemWord(i))
 	for i in lst:
 		req[i[1]] = ''
-	get(req, title, url)
+	get(req, title, url, tfull)
 	res = []
 	for t in lst:
 		i = 2
@@ -155,7 +157,7 @@ def snip(lst, query, length=150):
 			if text[i] == ' ':
 				r = text[pos : i]
 		r = bold(r.strip(), q)
-		res.append((r, title[t[1]], url[t[1]]))
+		res.append((r, title[t[1]], url[t[1]], tfull[t[1]]))
 		#print(r)
 		#print(title[t[1]])
 		#print(url[t[1]])
