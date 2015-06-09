@@ -27,7 +27,7 @@
         <li>
           <div class="snippet" style="background-color:{{scolors[i % 6]}};" onmouseover="getElementById('prev{{i}}').style.visibility='visible';" onmouseout="getElementById('prev{{i}}').style.visibility='hidden';">
             <a class="title" href="{{s['url']}}">{{!s['title']}}</a>
-            <p>{{!s['text']}}</p>
+            <p>...&nbsp;{{!s['text']}}&nbsp;...</p>
             <a class="address" href="{{s['url']}}">{{s['url']}}</a>
           </div>
           <div style="border: 60px solid transparent; border-left: 60px solid {{scolors[i % 6]}};">

@@ -5,7 +5,7 @@ import base64
 import zlib
 import sys
 import re
-#from Stemmer import Stemmer as stemmer
+from Stemmer import Stemmer as stemmer
 
 def ends(s):
 	res = [0] * len(s)
@@ -19,7 +19,8 @@ def ends(s):
 shifts = {}
 sfiles = {}
 #path = './1_1000/'
-path = '/media/pavel/Seagate Backup Plus Drive/IR/all/'
+#path = '/media/pavel/Seagate Backup Plus Drive/IR/all/'
+path = argv[1] + 'all/'
 
 def precount_sh():
 	f = open(path + 'shift.txt', 'r')
@@ -33,10 +34,9 @@ def precount_sh():
 	f.close()	
 
 precount_sh()
-#st = stemmer('russian')
+st = stemmer('russian')
 
-def bold(s, q):
-	return s
+def bold(s, qq):
 	p = 0
 	q = 1
 	prev = 0
@@ -45,7 +45,7 @@ def bold(s, q):
 	while True:
 		while q < l and s[q].isalpha():
 			q += 1
-		if st(s[p:q]) in q:
+		if st(s[p:q]) in qq:
 			t += s[prev:p] + '<b>' + s[p:q] + '</b>'
 		else:
 			t += s[prev:q]
@@ -53,6 +53,9 @@ def bold(s, q):
 		while q < l and not s[q].isalpha():
 			q += 1
 		t += s[p:q]
+		prev = q
+		if q >= l:
+			break
 	return t
 
 def get(req, title, url):
@@ -111,8 +114,8 @@ def snip(lst, query, length=150):
 	title = {}
 	url = {}
 	q = set()
-	#for i in query:
-	#	q.add(st.stemWord(i))
+	for i in query:
+		q.add(st.stemWord(i))
 	for i in lst:
 		req[i[1]] = ''
 	get(req, title, url)
