@@ -42,7 +42,9 @@ def bold(s, qq):
 	prev = 0
 	t = ''
 	l = len(s)
-	while True:
+	for i in range(30):
+	#while True:
+		p = prev
 		while q < l and s[q].isalpha():
 			q += 1
 		if st.stemWord(s[p:q]) in qq:
@@ -68,7 +70,7 @@ def get(req, title, url, tfull):
 		
 		x = re.search('<title>.*</title>', html_text).span()
 		t = html_text[x[0] + 7: x[1] - 8]
-		while t.find(':') > 0:
+		while t.find(': ') > 0:
 			t = t[t.find(': ') + 1:]
 		tfull[i] = t
 		if len(t) > 60:
@@ -123,11 +125,12 @@ def snip(lst, query, length=150):
 	get(req, title, url, tfull)
 	res = []
 	for t in lst:
-		i = 2
+		#i = 2
 		pos = -1
 		text = req[t[1]]
 		#print(text)
-		while True:
+		#while True:
+		for i in range(2, 20):
 			temp = '.{,%d}' % i
 			temp = temp.join(t[0])
 			#print(temp)
@@ -135,8 +138,10 @@ def snip(lst, query, length=150):
 			if x:
 				pos = x.span()[0]
 				break
-			else:
-				i += 1
+			#else:
+			#	i += 1
+		if pos < 0:
+			pos = 3;
 		#print(pos)
 		dots = ends(text)
 		r = ''
