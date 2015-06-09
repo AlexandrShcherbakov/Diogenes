@@ -2,12 +2,6 @@
 
 def gen(s):
     a = []
-    rus = "йцукенгшщзхъфывапролджэячсмитьбюё"
-    eng = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`"
-    trans = {}
-    for i in range(len(rus)):
-        trans[rus[i]] = eng[i]
-        trans[eng[i]] = rus[i]
     l = len(s)
     for i in range(l + 1): 
         for c in rus:
@@ -18,12 +12,18 @@ def gen(s):
             for c in rus:
                 a.append([s[:i] + c + s[i + 1:]])
             a.append([s[:i] + s[i + 1:]])
-    try:
-        a.append([''.join([trans[i] for i in s])])
-    except:
-        pass    
+    #try:
+    #    a.append([''.join([trans[i] for i in s])])
+    #except:
+    #    pass    
     return a
     
+rus = "йцукенгшщзхъфывапролджэячсмитьбюё"
+eng = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`"
+trans = {}
+for i in range(len(rus)):
+    trans[rus[i]] = eng[i]
+    trans[eng[i]] = rus[i]
 blol = {}
 
 def freq():
@@ -78,9 +78,19 @@ def iter(a, depth):
         #c.sort(key = lambda x: x[1], reverse=True)
         #return c[0]
 
-def spell(a):
-    arr = []
-    x = sos(a, 2)
+arr = []
+
+def spell(a, tr=True):
+    global arr
+    if tr:
+        arr = []
+    if tr:
+        try:
+            b = [''.join([trans[i] for i in j]) for j in a]
+            spell(b, False)
+        except:
+            pass
+    x = sos(a, 1)
     if x is not None:
         arr.append(x)
     for i in range(len(a) - 1):
@@ -93,7 +103,7 @@ def spell(a):
     else:
         return None
 
-def check2(a):
+def spell2(a): # not used
     s = a[0]
     l = len(s)
     q = ''
@@ -134,8 +144,4 @@ def sos(a, depth = 0):
     return iter([b], 0)
 
 if __name__ == '__main__':
-    freq(dict())
-    check(input().lower().split(), 0)
-    arr.sort(key = lambda x:x[1], reverse=True)
-    print(arr)
-    print(arr[0][0])
+    print(spell(input().lower().split()))
